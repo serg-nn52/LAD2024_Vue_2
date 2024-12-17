@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import CounterExample from '../components/CounterExample.vue';
-import CounterOptionsApi from '../components/CounterOptionsApi.vue';
+import ParentComponent from '@/components/ParentComponent.vue';
 </script>
 
 <template>
   <main>
-    <CounterExample />
-    <CounterOptionsApi />
+    Main
+    <ParentComponent />
   </main>
 </template>
