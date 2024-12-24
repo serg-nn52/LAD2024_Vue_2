@@ -1,4 +1,8 @@
 <template>
+  <div>
+    Top
+    <slot name="header" />
+  </div>
   <div :style="{ color }">{{ title }}</div>
   <div>Year: {{ year }}</div>
   <input type="text" v-model="user.name" />
@@ -14,85 +18,76 @@
   <h2>User</h2>
   <div>{{ user.name }}</div>
   <div>{{ user.age }}</div>
+  <div>
+    Middle
+    <slot />
+  </div>
   <h2>Posts</h2>
   <ul>
     <li v-for="post in posts" :key="post.id" class="title">{{ post.post }}</li>
   </ul>
+  <div>
+    Bottom
+    <slot name="footer" />
+  </div>
 </template>
 
-<script lang="ts">
-import type { IPost } from '@/data/posts';
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue';
+import type { IChildComponentEmits, IChildComponentProps } from './types';
 
-export default defineComponent({
-  data() {
-    return {
-      count: 0,
-      oldCount: 0,
-      color: 'red',
-      user: {
-        name: 'Sergey',
-        age: 0,
-      },
-    };
+const count = ref(0);
+const oldCount = ref<number>(0);
+const color = ref<'red' | 'yellow'>('red');
+const user = ref({
+  name: 'Sergey',
+  age: 0,
+});
+
+const props = withDefaults(defineProps<IChildComponentProps>(), { title: 'Default title' });
+const emits = defineEmits<IChildComponentEmits>();
+
+const incrementCount = () => {
+  count.value++;
+};
+const incrementAge = () => {
+  user.value.age++;
+};
+const incrementParentCount = () => {
+  emits('increment-parent-counter');
+};
+
+const doubleCount = computed(() => {
+  return count.value * 2;
+});
+
+watch(
+  count,
+  (newVal, oldVal) => {
+    console.log('newVal: ', newVal);
+    console.log('oldVal', oldVal || 0);
+    console.log('title: ', props.title);
+    oldCount.value = oldVal || 0;
+    if (newVal > 10) color.value = 'yellow';
   },
-  props: {
-    title: {
-      type: String,
-      default: 'Default title',
-    },
-    year: {
-      type: Number,
-      required: true,
-    },
-    posts: {
-      type: Array<IPost>,
-      required: true,
-    },
+  { immediate: true },
+);
+
+watch(
+  user,
+  (newVal, oldVal) => {
+    console.log('newVal: ', newVal);
+    console.log('oldVal', oldVal);
   },
-  emits: ['double', 'increment-parent-counter'],
-  computed: {
-    doubleCount() {
-      return this.count * 2;
-    },
+  {
+    deep: true,
+    immediate: true,
+    once: true,
   },
-  methods: {
-    incrementCount() {
-      this.count++;
-    },
-    incrementAge() {
-      this.user.age++;
-    },
-    incrementParentCount() {
-      this.$emit('increment-parent-counter');
-    },
-  },
-  watch: {
-    count(newVal, oldVal) {
-      // console.log('newVal: ', newVal);
-      // console.log('oldVal', oldVal);
-      this.oldCount = oldVal;
-      if (newVal > 10) this.color = 'yellow';
-    },
-    doubleCount(value) {
-      this.$emit('double', value);
-    },
-    // 'user.age': {
-    //   handler(newVal, oldVal) {
-    //     console.log('newVal: ', newVal);
-    //     console.log('oldVal', oldVal);
-    //   },
-    // },
-    user: {
-      handler(newVal) {
-        console.log('newVal: ', newVal);
-        // console.log('oldVal', oldVal);
-      },
-      // deep: true,
-      // once: true,
-      // immediate: true,
-    },
-  },
+);
+
+watch(doubleCount, (value: number) => {
+  emits('double', value);
 });
 </script>
 
