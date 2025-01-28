@@ -4,7 +4,7 @@ import ParentComponent from '@/components/ParentComponent.vue';
 
 <template>
   <main>
-    Main
+    Home
     <ParentComponent />
   </main>
 </template>
