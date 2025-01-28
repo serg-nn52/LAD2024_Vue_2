@@ -1,32 +1,36 @@
 <template>
-  <div class="parent">Parent</div>
-  <div>Возраст юзера: {{ user.age }}</div>
-  <div>Лет до пенсии: {{ quantityYears }}</div>
-  <button @click="incrementAge">Увеличить возраст</button>
-  <div>Parent Counter: {{ parentCount }}</div>
-  <div class="child">
-    <ChildComponent
-      @increment-parent-counter="parentCount++"
-      @double="(e) => consoleEmit(e)"
-      :title="parentTitle"
-      :year="year"
-      :posts="posts"
-    >
-      <template #header>
-        <div>Логотип и меню</div>
-      </template>
-      <div>Компонент - список юзеров</div>
-      <template #footer>
-        <div>Контакты</div>
-      </template>
-    </ChildComponent>
+  <div>
+    <div class="parent">Parent</div>
+    <div>Возраст юзера: {{ user.age }}</div>
+    <div>Лет до пенсии: {{ quantityYears }}</div>
+    <button @click="incrementAge">Увеличить возраст</button>
+    <div>Parent Counter: {{ parentCount }}</div>
+    <div class="child">
+      <ChildComponent
+        v-if="user.age < 32"
+        @increment-parent-counter="parentCount++"
+        @double="(e) => consoleEmit(e)"
+        :title="parentTitle"
+        :year="year"
+        :posts="posts"
+      >
+        <template #header>
+          <div>Логотип и меню</div>
+        </template>
+        <div>Компонент - список юзеров</div>
+        <template #footer>
+          <div>Контакты</div>
+        </template>
+      </ChildComponent>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 import ChildComponent from './ChildComponent.vue';
 import { posts } from '@/data/posts';
+import { useMedia } from '@/composables/useMedia';
 
 defineOptions({ name: 'ParentComponent' });
 
@@ -70,9 +74,29 @@ watch(
     console.log('old', oldVal);
   },
 );
+
+console.log('created');
+
+onMounted(() => {
+  console.log('mounted');
+});
+
+onUpdated(() => {
+  console.log('updated');
+});
+
+const { device } = useMedia();
+
+watch(
+  device,
+  (value) => {
+    console.log('screen', value);
+  },
+  { immediate: true },
+);
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .parent {
   background-color: antiquewhite;
   color: green;
@@ -82,4 +106,10 @@ watch(
 .child {
   background-color: grey;
 }
+// .child-component {
+//   background-color: bisque;
+// }
+/* :deep(.main-title) {
+  font-size: 8px;
+} */
 </style>
