@@ -1,8 +1,17 @@
 <template>
-  <footer class="header">Header</footer>
+  <header class="header">
+    Header
+    <button @click="increment">Increment</button>
+  </header>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useCounterStore } from '@/stores/counter';
+
+const countStore = useCounterStore();
+
+const { increment } = countStore;
+</script>
 
 <style scoped>
 .header {
